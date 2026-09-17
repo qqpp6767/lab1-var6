@@ -2,8 +2,9 @@
 
 int current_day = 1;
 int current_hour = 8;
-int inventory[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-/*
+int inventory[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+/* 
+ID предметов
 0 - пусто
 1 - дерево
 2 - камень
@@ -15,44 +16,84 @@ int inventory[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 8 - уголь
 9 - золото
 */
+int work_hours;
 
 int main() 
 {
   int taskNum;
   do 
   {
-    printf("Введи № действия (1-6): ");
-    if (scanf("%d", &taskNum) == 0) // проверка ввода
+    printf("──────────────────────────────\n"
+           "╭0 - Выход                   ╮\n"
+           "├1 - Посмотреть на часы      │\n"
+           "├2 - Поработать              │\n"
+           "├3 - Посмотреть инвентарь    │\n"
+           "├4 - Положить предмет в слот │\n"
+           "├5 - Выбросить предмет       │\n"
+           "╰6 - Найти тяжести           ╯\n"
+           "Введи № действия (1-6): ");
+
+    if (scanf("%d", &taskNum) != 1) // проверка ввода
     {
-      printf("Ты конч? Я просил число\n");
+      printf("Э, я число просил\n");
       while (getchar() != '\n'); // очистка буфера ввода
+      taskNum = -1; // чтобы случайно не завершился код
       continue;
     }
 
-    switch (taskNum) 
+    switch (taskNum)
     {
-    case 1:
-      printf("1\n");
+    case 1: // посмотреть время
+      
+      printf("Текущее время: День %d, %02d:00\n", current_day, current_hour);
       break;
-    case 2:
-      printf("2\n");
+
+    case 2: // поработать
+      
+      printf("Сколько часов работать?: ");
+      if (scanf("%d", &work_hours) != 1) // проверка ввода
+      {
+        printf("Э, я число просил\n");
+        while (getchar() != '\n'); // очистка буфера ввода
+      }
+
+      current_hour += work_hours;
+
+      // перевод времени
+      while (current_hour >= 24)
+      {
+        current_day++;
+        current_hour -= 24;
+      }
       break;
-    case 3:
+
+    case 3: // чекнуть инвентарь
+
       printf("3\n");
       break;
-    case 4:
+
+    case 4: // положить предмет в слот
+
       printf("4\n");
       break;
-    case 5:
+
+    case 5: // Выбросить предмет
+
       printf("5\n");
       break;
-    case 6:
+
+    case 6: // Найти тяжести
+
       printf("6\n");
       break;
-    case 0:
+
+    case 0: // выход
+
       printf("Ну пока");
       break;
+
     default:
+
       printf("Ты че? только 1-6\n");
       break;
     }
