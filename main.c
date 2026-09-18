@@ -103,7 +103,7 @@ int main()
 
       inventory[slot] = item_id; // Запись в массив
       printf("В слот %d помещен предмет: [%d] (%s)\n", slot, item_id,items[item_id]);
-      break; // Выход из switch-а
+      break;
     }
 
     case 5: // Выбросить предмет
