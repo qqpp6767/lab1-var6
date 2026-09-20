@@ -8,6 +8,7 @@ const char *items[10] = {"Пусто", "Дерево", "Камень", "Семе
                          "Гриб",  "Железо", "Песок",  "Уголь",  "Золото"};
 
 int work_hours;
+int slot,item_id;
 
 int main() 
 {
@@ -28,7 +29,7 @@ int main()
     {
       printf("Э, я число просил\n");
       while (getchar() != '\n'); // очистка буфера ввода
-      taskNum = -1; // чтобы случайно не завершился код
+      taskNum = -1; // чтобы случайно не завершилась вся программа
       continue;
     }
 
@@ -42,10 +43,10 @@ int main()
     case 2: // поработать
       
       printf("Сколько часов работать?: ");
-      if (scanf("%d", &work_hours) != 1) // проверка ввода
+      if (scanf("%d", &work_hours) != 1)
       {
         printf("Э, я число просил\n");
-        while (getchar() != '\n'); // очистка буфера ввода
+        while (getchar() != '\n');
       }
 
       current_hour += work_hours;
@@ -67,49 +68,57 @@ int main()
       break;
 
     case 4: // положить предмет в слот
-    {
-      int slot, item_id;
 
-        // Ввод слота
-        printf("Введи номер слота (0-9): ");
-        if (scanf("%d", &slot) != 1)
-        {
-          printf("Не то\n");
-          while (getchar() != '\n');
-          continue;
-        }
+      printf("Введи номер слота (0-9): ");
+      if (scanf("%d", &slot) != 1)
+      {
+        printf("Не то\n");
+        while (getchar() != '\n');
+        continue;
+      }
 
-        if (slot < 0 || slot > 9) 
-        {
-          printf("Такого слота нет родной (0-9)\n");
-          continue;
-        }
+      if (slot < 0 || slot > 9) 
+      {
+        printf("Такого слота нет родной (0-9)\n");
+        continue;
+      }
 
-        // Ввод ID
-        printf("Введи ID предмета (0-9): ");
-        if (scanf("%d", &item_id) != 1)
-        {
-          printf("Не то\n");
-          while (getchar() != '\n');
-          continue;
-        }
+      printf("Введи ID предмета (1-9): ");
+      if (scanf("%d", &item_id) != 1)
+      {
+        printf("Не то\n");
+        while (getchar() != '\n');
+        continue;
+      }
 
-        if (item_id < 0 || item_id > 9)
-        {
-          printf("Такого ID нет родной (0-9)\n");
-          continue;
-        }
+      if (item_id == 0) {
+        printf("Неа, удалить незя\n");
+        continue;
+      }
+      else if (item_id < 1 || item_id > 9)
+      {
+        printf("Такого ID нет родной (1-9)\n");
+        continue;
+      }
 
-
-      inventory[slot] = item_id; // Запись в массив
+      inventory[slot] = item_id;
       printf("В слот %d помещен предмет: [%d] (%s)\n", slot, item_id,items[item_id]);
       break;
-    }
 
     case 5: // Выбросить предмет
 
-      printf("5\n");
-      break;
+    printf("Введи Слот (0-9): ");
+    if (scanf("%d", &slot) != 1)
+    {
+      printf("Э, я число просил\n");
+      while (getchar() != '\n');
+      continue;
+    }
+
+    item_id = inventory[slot];
+    inventory[slot] = 0;
+    printf("Ты выкинул [%s] из слота %d\n",items[item_id], slot);
+    break;
 
     case 6: // Найти тяжести
 
