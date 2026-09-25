@@ -122,7 +122,31 @@ int main()
 
     case 6: // Найти тяжести
 
-      printf("6\n");
+      printf("Введи ID предмета: ");
+      if (scanf("%d", &item_id) != 1)
+      {
+        printf("Нужно число э\n");
+        while (getchar() != '\n');
+        continue;
+      }
+
+      int found = 0;
+      printf("Слоты, ID которых больше %d:\n", item_id);
+
+      for (int i = 0; i < sizeof(inventory) / sizeof(inventory[0]); i++)
+      {
+        if (inventory[i] > item_id)
+        {
+          printf("- Слот %d: [%d] (%s)\n", i, inventory[i],items[inventory[i]]);
+          found = 1;
+        }
+      }
+
+      if (!found)
+      {
+        printf("Такых нэд\n");
+      }
+
       break;
 
     case 0: // выход
