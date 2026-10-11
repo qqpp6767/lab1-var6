@@ -34,6 +34,7 @@ int input(int *var);
 int check_inventory(int *inventory, int inventory_size);
 int check_weights(int item_id, int inventory_size);
 void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+void find_by_name(const char *search_name);
 
 int main()
 {
@@ -41,6 +42,7 @@ int main()
   int taskNum;
   printf("Введи имя фермера: ");
   fgets(username, sizeof(username), stdin);
+  printf("Привет, %s", username);
   do 
   {
     printf("────────────────\n"
@@ -51,10 +53,10 @@ int main()
            "4 - Положить предмет в слот\n"
            "5 - Выбросить предмет\n"
            "6 - Найти тяжести\n"
-           "Введи № действия (1-6): ");
+           "7 - Поиск предмета в рюкзаке по названию\n"
+           "Введи № действия (1-9): ");
 
-    input(&taskNum);
-
+    if(!input(&taskNum)) continue;
     switch (taskNum)
     {
     case 1: // посмотреть время
@@ -65,7 +67,7 @@ int main()
     case 2: // поработать
       
       printf("Сколько часов работать?: ");
-      input(&work_hours);
+      if (!input(&work_hours)) break;
 
       if(work_hours < 0)
       {
@@ -89,7 +91,7 @@ int main()
     case 4: // положить предмет в слот
 
       printf("Введи номер слота (0-9): ");
-      input(&slot);
+      if (!input(&slot)) break;
 
       if (slot < 0 || slot > 9) 
       {
@@ -98,7 +100,7 @@ int main()
       }
 
       printf("Введи ID предмета (1-9): ");
-      input(&item_id);
+      if (!input(&item_id)) break;
 
       if (item_id == 0)
       {
@@ -118,7 +120,7 @@ int main()
     case 5: // Выбросить предмет
 
     printf("Введи Слот (0-9): ");
-    input(&slot);
+    if (!input(&slot)) break;
 
     item_id = inventory[slot];
     inventory[slot] = 0;
@@ -128,14 +130,21 @@ int main()
     case 6: // Найти тяжести
 
       printf("Введи ID предмета: ");
-      input(&item_id);
+      if(!input(&item_id)) break;
 
       check_weights(item_id, inventory_size);
       break;
 
     case 7:
-      
+    {
+      char search_name[MAX_ITEM_NAME_LEN];
+      printf("Введи название предмета для поиска: ");
+      scanf("%31s", search_name);
+      while (getchar() != '\n');
+
+      find_by_name(search_name);
       break;
+    }
 
     case 8:
 
@@ -152,7 +161,7 @@ int main()
 
     default:
 
-      printf("Ты че? только 1-6\n");
+      printf("Ты че? только 1-9\n");
       break;
 
     }
@@ -162,14 +171,15 @@ int main()
 }
 
 // Проверка ввода
-int input(int *var)
-{
+int input(int *var) {
   if (scanf("%d", var) != 1)
   {
     printf("Нужно число\n");
     while (getchar() != '\n');
+    *var = -1;
     return 0;
   }
+  while (getchar() != '\n');
   return 1;
 }
 
@@ -234,4 +244,37 @@ int check_weights(int item_id, int inventory_size)
 
   if (!found) {printf("Не найдено\n");}
   return 0;
+}
+
+// Поиск предмета по названию
+void find_by_name(const char *search_name)
+{
+  int target_id = -1;
+  // Поиск ID в каталоге
+  for (int i = 0; i < MAX_ITEMS; i++)
+  {
+    if (strcmp(item_names[i], search_name) == 0) // сравнение строк: одинаковые - 0, иначе 1
+    {
+      target_id = i;
+      break;
+    }
+  }
+  if (target_id == -1)
+  {
+    printf("Предмета [%s] нет в каталоге!\n", search_name);
+    return;
+  }
+
+  // Поиск ID в слотах рюкзака
+  int found = 0;
+  printf("Поиск %s (ID %d) в инвентаре...\n", search_name, target_id);
+  for (int i = 0; i < inventory_size; i++)
+  {
+    if (inventory[i] == target_id)
+    {
+      printf("- Слот [%d]\n", i);
+      found = 1;
+    }
+  }
+  if (!found) {printf("В рюкзаке предмета [%s] нет.\n", search_name);}
 }
