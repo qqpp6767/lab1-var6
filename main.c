@@ -1,12 +1,31 @@
 #include <stdio.h>
+#include <string.h>
+
+#define MAX_ITEMS 10
+#define MAX_ITEM_NAME_LEN 32
+#define MAX_NAME_LEN 32
+
+
+#define ITEM_EMPTY "Пусто"
+#define ITEM_WOOD "Дерево"
+#define ITEM_STONE "Камень"
+#define ITEM_SEEDS "Семена"
+#define ITEM_GRASS "Трава"
+#define ITEM_MUSHROOM "Гриб"
+#define ITEM_IRON "Железо"
+#define ITEM_SAND "Песок"
+#define ITEM_COAL "Уголь"
+#define ITEM_GOLD "Золото"
+
 
 // Переменные
 int current_day = 1;
 int current_hour = 8;
 int inventory[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN];
 int inventory_size = sizeof(inventory) / sizeof(inventory[0]);
-const char *items[10] = {"Пусто", "Дерево", "Камень", "Семена", "Трава",
-                         "Гриб",  "Железо", "Песок",  "Уголь",  "Золото"};
+
+char username[MAX_NAME_LEN + 1];
 int work_hours;
 int slot,item_id;
 
@@ -14,9 +33,14 @@ int slot,item_id;
 int input(int *var);
 int check_inventory(int *inventory, int inventory_size);
 int check_weights(int item_id, int inventory_size);
+void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 
-    int main() {
+int main()
+{
+  load_items(item_names);
   int taskNum;
+  printf("Введи имя фермера: ");
+  fgets(username, sizeof(username), stdin);
   do 
   {
     printf("────────────────\n"
@@ -88,7 +112,7 @@ int check_weights(int item_id, int inventory_size);
       }
 
       inventory[slot] = item_id;
-      printf("В слот %d помещен предмет: [%d] (%s)\n", slot, item_id,items[item_id]);
+      printf("В слот %d помещен предмет: [%d] (%s)\n", slot, item_id,item_names[item_id]);
       break;
 
     case 5: // Выбросить предмет
@@ -98,7 +122,7 @@ int check_weights(int item_id, int inventory_size);
 
     item_id = inventory[slot];
     inventory[slot] = 0;
-    printf("Ты выкинул [%s] из слота %d\n", items[item_id], slot);
+    printf("Ты выкинул [%s] из слота %d\n", item_names[item_id], slot);
     break;
 
     case 6: // Найти тяжести
@@ -108,6 +132,18 @@ int check_weights(int item_id, int inventory_size);
 
       check_weights(item_id, inventory_size);
       break;
+
+    case 7:
+      
+      break;
+
+    case 8:
+
+      break;
+
+    case 9:
+
+    break;
 
     case 0: // выход
 
@@ -137,12 +173,46 @@ int input(int *var)
   return 1;
 }
 
+// Загрузка предметов
+void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN])
+{
+  FILE *file = fopen("items.txt", "r");
+  if (file == NULL)
+  {
+    printf("items.txt не найден\n");
+    strcpy(names[0], ITEM_EMPTY);
+    strcpy(names[1], ITEM_WOOD);
+    strcpy(names[2], ITEM_STONE);
+    strcpy(names[3], ITEM_SEEDS);
+    strcpy(names[4], ITEM_GRASS);
+    strcpy(names[5], ITEM_MUSHROOM);
+    strcpy(names[6], ITEM_IRON);
+    strcpy(names[7], ITEM_SAND);
+    strcpy(names[8], ITEM_COAL);
+    strcpy(names[9], ITEM_GOLD);
+    return;
+  }
+
+  int id;
+  char name[MAX_ITEM_NAME_LEN];
+
+  // Чтение числа и слова построчно
+  while (fscanf(file, "%d %31s", &id, name) == 2)
+  {
+    if (id >= 0 && id < MAX_ITEMS)
+    {
+      strcpy(names[id], name);
+    }
+  }
+  fclose(file);
+}
+
 // Вывод инвентаря
 int check_inventory(int *inventory, int inventory_size)
 {
   for (int i = 0; i < inventory_size; i++)
   {
-    printf("Слот %d: [%d] (%s)\n", i, inventory[i], items[inventory[i]]);
+    printf("Слот %d: [%d] (%s)\n", i, inventory[i], item_names[inventory[i]]);
   }
   return 0;
 }
@@ -157,11 +227,11 @@ int check_weights(int item_id, int inventory_size)
   {
     if (inventory[i] > item_id)
     {
-      printf("- Слот %d: [%d] (%s)\n", i, inventory[i], items[inventory[i]]);
+      printf("- Слот %d: [%d] (%s)\n", i, inventory[i], item_names[inventory[i]]);
       found = 1;
     }
   }
 
-  if (!found) {printf("Такых нэд\n");}
+  if (!found) {printf("Не найдено\n");}
   return 0;
 }
