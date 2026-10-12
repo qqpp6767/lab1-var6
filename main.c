@@ -35,6 +35,8 @@ int check_inventory(int *inventory, int inventory_size);
 int check_weights(int item_id, int inventory_size);
 void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void find_by_name(const char *search_name);
+void save_to_diary(void);
+void check_crafting_recipes(void);
 
 int main()
 {
@@ -54,6 +56,8 @@ int main()
            "5 - Выбросить предмет\n"
            "6 - Найти тяжести\n"
            "7 - Поиск предмета в рюкзаке по названию\n"
+           "8 - Записать состояние в дневник фермера\n"
+           "9 - Расшифровать старые записи\n"
            "Введи № действия (1-9): ");
 
     if(!input(&taskNum)) continue;
@@ -135,7 +139,7 @@ int main()
       check_weights(item_id, inventory_size);
       break;
 
-    case 7:
+    case 7: // Поиск предмета в рюкзаке по названию
     {
       char search_name[MAX_ITEM_NAME_LEN];
       printf("Введи название предмета для поиска: ");
@@ -146,13 +150,15 @@ int main()
       break;
     }
 
-    case 8:
+    case 8: // Записать состояние в дневник фермера (diary.txt)
 
+      save_to_diary();
       break;
 
-    case 9:
+    case 9: // Расшифровать старые записи
 
-    break;
+      check_crafting_recipes();
+      break;
 
     case 0: // выход
 
@@ -277,4 +283,136 @@ void find_by_name(const char *search_name)
     }
   }
   if (!found) {printf("В рюкзаке предмета [%s] нет.\n", search_name);}
+}
+
+// Запись состояния в дневник
+void save_to_diary(void)
+{
+  FILE *file = fopen("diary.txt", "a");
+  if (file == NULL)
+  {
+    printf("Не удалось открыть файл diary.txt\n");
+    return;
+  }
+
+  fprintf(file, "────────── Запись в дневнике ──────────\n");
+  fprintf(file, "Фермер: %s", username);
+  fprintf(file, "Время: День %d, %02d:00\n", current_day, current_hour);
+  fprintf(file, "Содержимое рюкзака:\n");
+  for (int i = 0; i < inventory_size; i++)
+  {
+    fprintf(file, "  Слот %d: [%d] %s\n", i, inventory[i], item_names[inventory[i]]);
+  }
+  fprintf(file, "───────────────────────────────────────\n\n");
+
+  fclose(file);
+  printf("Запись успешно добавлена в diary.txt!\n");
+}
+
+// Проверка рецептов крафта
+void check_crafting_recipes(void)
+{
+  FILE *f_in = fopen("input.txt", "r");
+  if (f_in == NULL)
+  {
+    printf("Файл input.txt не найден\n");
+    return;
+  }
+
+  FILE *f_out = fopen("output.txt", "w");
+  if (f_out == NULL)
+  {
+    printf("Не удалось создать output.txt\n");
+    fclose(f_in);
+    return;
+  }
+
+  // Сколько ресурсов прямо сейчас лежит в инвентаре
+  int available[MAX_ITEMS] = {0};
+  for (int i = 0; i < inventory_size; i++)
+  {
+    if (inventory[i] > 0 && inventory[i] < MAX_ITEMS) {available[inventory[i]]++;}
+  }
+
+  printf("\n=== РЕЗУЛЬТАТ ПРОВЕРКИ КРАФТА ===\n");
+  fprintf(f_out, "=== РЕЗУЛЬТАТ ПРОВЕРКИ КРАФТА ===\n");
+
+  char line[256];
+  // Чтение рецептов
+  while (fgets(line, sizeof(line), f_in) != NULL)
+  {
+    int colon_index = -1;
+
+    // Поиск двоеточия и разделение названий с рецептом
+    for (int i = 0; line[i] != '\0'; i++)
+    {
+      if (line[i] == ':')
+      {
+        line[i] = '\0';
+        colon_index = i;
+        break;
+      }
+    }
+
+    if (colon_index == -1) continue;
+
+    char *recipe_name = line; // Название рецепта
+    int required[MAX_ITEMS] = {0};
+
+    // Сбор всех цифр после двоеточия
+    for (int i = colon_index + 1; line[i] != '\0'; i++)
+    {
+      if (line[i] >= '0' && line[i] <= '9')
+      {
+        int id = line[i] - '0'; // число - 48 (по ASCII)
+        required[id]++;
+      }
+    }
+
+    // Проверка ресурсов
+    int can_craft = 1;
+    for (int id = 1; id < MAX_ITEMS; id++)
+    {
+      if (available[id] < required[id])
+      {
+        can_craft = 0;
+        break;
+      }
+    }
+
+    // Вывод на экран и в output.txt
+    if (can_craft)
+    {
+      printf("%s: [ДОСТУПНО]\n", recipe_name);
+      fprintf(f_out, "%s: [ДОСТУПНО]\n", recipe_name);
+    }
+    else
+    {
+      printf("%s: [НЕ ХВАТАЕТ РЕСУРСОВ] (Не хватает: ", recipe_name);
+      fprintf(f_out, "%s: [НЕ ХВАТАЕТ РЕСУРСОВ] (Не хватает: ", recipe_name);
+
+      int first = 1;
+      for (int id = 1; id < MAX_ITEMS; id++)
+      {
+        if (available[id] < required[id])
+        {
+          int missing = required[id] - available[id];
+          if (!first)
+          {
+            printf(", ");
+            fprintf(f_out, ", ");
+          }
+          printf("%s x%d", item_names[id], missing);
+          fprintf(f_out, "%s x%d", item_names[id], missing);
+          first = 0;
+        }
+      }
+      printf(")\n");
+      fprintf(f_out, ")\n");
+    }
+  }
+
+  fclose(f_in);
+  fclose(f_out);
+  printf("сохранено в output.txt\n\n");
 }
