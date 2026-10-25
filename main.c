@@ -39,6 +39,7 @@ void find_by_name(const char *search_name);
 void save_to_diary(void);
 void check_crafting_recipes(void);
 char **create_map(int *width, int *height);
+void place_hero(char **map, int width, int height, int *hero_x, int *hero_y);
 
 int main()
 {
@@ -467,4 +468,44 @@ void free_map(char **map, int height)
   for (int y = 0; y < height; y++)
   {free(map[y]);}
   free(map);
+}
+
+// Создание героя
+void place_hero(char **map, int width, int height, int *hero_x, int *hero_y)
+{
+  int free_cells = 0;
+  for (int y = 1; y < height - 1; y++)
+  {
+    for (int x = 1; x < width - 1; x++)
+    {
+      if (map[y][x] == '.') {free_cells++;}
+    }
+  }
+
+  // Если нет места
+  if (free_cells == 0)
+  {
+    map[1][1] = '.';
+    free_cells = 1;
+  }
+
+  // Позиция героя
+  int target = rand() % free_cells;
+  for (int y = 1; y < height - 1; y++)
+  {
+    for (int x = 1; x < width - 1; x++)
+    {
+      if (map[y][x] == '.')
+      {
+        if (target == 0)
+        {
+          map[y][x] = '@';
+          *hero_x = x;
+          *hero_y = y;
+          return;
+        }
+        target--;
+      }
+    }
+  }
 }
