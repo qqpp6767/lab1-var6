@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
 
 #define MAX_ITEMS 10
 #define MAX_ITEM_NAME_LEN 32
@@ -24,7 +26,6 @@ int current_hour = 8;
 int inventory[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN];
 int inventory_size = sizeof(inventory) / sizeof(inventory[0]);
-
 char username[MAX_NAME_LEN + 1];
 int work_hours;
 int slot,item_id;
@@ -37,9 +38,11 @@ void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void find_by_name(const char *search_name);
 void save_to_diary(void);
 void check_crafting_recipes(void);
+char **create_map(int *width, int *height);
 
 int main()
 {
+  srand(time(NULL));
   load_items(item_names);
   int taskNum;
   printf("Введи имя фермера: ");
@@ -58,7 +61,8 @@ int main()
            "7 - Поиск предмета в рюкзаке по названию\n"
            "8 - Записать состояние в дневник фермера\n"
            "9 - Расшифровать старые записи\n"
-           "Введи № действия (1-9): ");
+           "10 - Отправиться в путешествие\n"
+           "Введи № действия (1-10): ");
 
     if(!input(&taskNum)) continue;
     switch (taskNum)
@@ -158,6 +162,10 @@ int main()
     case 9: // Расшифровать старые записи
 
       check_crafting_recipes();
+      break;
+
+    case 10:// Путешествие
+      
       break;
 
     case 0: // выход
@@ -300,9 +308,7 @@ void save_to_diary(void)
   fprintf(file, "Время: День %d, %02d:00\n", current_day, current_hour);
   fprintf(file, "Содержимое рюкзака:\n");
   for (int i = 0; i < inventory_size; i++)
-  {
-    fprintf(file, "  Слот %d: [%d] %s\n", i, inventory[i], item_names[inventory[i]]);
-  }
+  {fprintf(file, "  Слот %d: [%d] %s\n", i, inventory[i], item_names[inventory[i]]);}
   fprintf(file, "───────────────────────────────────────\n\n");
 
   fclose(file);
@@ -415,4 +421,50 @@ void check_crafting_recipes(void)
   fclose(f_in);
   fclose(f_out);
   printf("сохранено в output.txt\n\n");
+}
+
+// создание карты
+char **create_map(int *width, int *height)
+{
+  *width = rand() % 26 + 5;
+  *height = rand() % 26 + 5;
+  int chance = rand() % 16 + 15;
+
+  // Массив указателей на строки
+  char **map = malloc(*height * sizeof(char *));
+  if (map == NULL)
+    return NULL;
+
+  for (int y = 0; y < *height; y++) {
+    map[y] = malloc(*width + 1); // +1 для '\0'
+    if (map[y] == NULL)
+    {
+      // Если не хватило памяти
+      for (int i = 0; i < y; i++)
+      {free(map[i]);}
+      free(map);
+      return NULL;
+    }
+
+    for (int x = 0; x < *width; x++)
+    {
+      if (x == 0 || x == *width - 1 || y == 0 || y == *height - 1) // ограничение карты
+      {map[y][x] = '#';}
+      else if (rand() % 100 < chance)
+      {map[y][x] = (rand() % 2 == 0) ? 'T' : 'R';}
+      else
+      {map[y][x] = '.';}
+    }
+    map[y][*width] = '\0';
+  }
+  return map;
+}
+
+// очистка карты
+void free_map(char **map, int height)
+{
+  if (map == NULL) return;
+  for (int y = 0; y < height; y++)
+  {free(map[y]);}
+  free(map);
 }
