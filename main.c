@@ -42,6 +42,7 @@ int random_free_cell(char **map, int width, int height, int *cell_x,int *cell_y)
 char **create_map(int *width, int *height, int *camp_x, int *camp_y);
 void free_map(char **map, int height);
 void print_map(char **map, int width, int height, int hero_x, int hero_y,int scream_x, int scream_y, int radius, int steps_left);
+void travel(void);
 
 int main() {
   srand(time(NULL));
@@ -167,27 +168,9 @@ int main() {
       break;
 
     case 10: // Путешествие
-    {
-      int w, h;
-      int hero_x, hero_y;
-      int camp_x, camp_y;
-      int scream_x = 0, scream_y = 0; // центр крика
-      int radius = 0;                 // радиус крика
-      int steps_left = 0;             // сколько ходов осталось
 
-      char **map = create_map(&w, &h, &camp_x, &camp_y);
-      if (map == NULL)
-      {
-        printf("Не хватило памяти для карты\n");
-        break;
-      }
-
-      // Герой на свободной клетке
-      random_free_cell(map, w, h, &hero_x, &hero_y);
-      print_map(map, w, h, hero_x, hero_y, scream_x, scream_y, radius, steps_left);
-      free_map(map, h);
+      travel();
       break;
-    }
 
     case 0: // выход
 
@@ -549,4 +532,109 @@ void free_map(char **map, int height)
   for (int y = 0; y < height; y++)
   {free(map[y]);}
   free(map);
+}
+
+// Режим ночного леса
+void travel(void)
+{
+  int distance = 0;
+  int width, height;
+  int camp_x, camp_y;
+
+  char **map = create_map(&width, &height, &camp_x, &camp_y);
+  if (map == NULL) {return;}
+
+  int hero_x = camp_x;
+  int hero_y = camp_y;
+
+  int scream_x = -1;
+  int scream_y = -1;
+  int scream_radius = 0;
+  int scream_steps = 0;
+
+  while (1)
+  {
+    printf("\nДистанция: %d\n", distance);
+    print_map(map, width, height, hero_x, hero_y, scream_x, scream_y,scream_radius, scream_steps);
+    printf("> ");
+
+    char cmd;
+    if (scanf(" %c", &cmd) != 1)
+    {
+      while (getchar() != '\n');
+      continue;
+    }
+    while (getchar() != '\n');
+
+    if (cmd == 'q' || cmd == 'Q')
+    {
+      if (hero_x == camp_x && hero_y == camp_y)
+      {
+        free_map(map, height);
+        return;
+      }
+      continue;
+    }
+
+    if (cmd == 'r' || cmd == 'R')
+    {
+      scream_x = hero_x;
+      scream_y = hero_y;
+      scream_radius = rand() % 3 + 5;
+      scream_steps = rand() % 2 + 2;
+      continue;
+    }
+
+    int dx = 0, dy = 0;
+    if (cmd == 'w' || cmd == 'W')      {dy = -1;}
+    else if (cmd == 's' || cmd == 'S') {dy = 1;}
+    else if (cmd == 'a' || cmd == 'A') {dx = -1;}
+    else if (cmd == 'd' || cmd == 'D') {dx = 1;}
+    else {continue;}
+
+    int next_x = hero_x + dx;
+    int next_y = hero_y + dy;
+
+    // Выход за границу экрана -> генерация нового участка
+    if (next_x < 0 || next_x >= width || next_y < 0 || next_y >= height) {
+      int old_w = width;
+      int old_h = height;
+
+      free_map(map, height);
+      distance++;
+
+      map = create_map(&width, &height, &camp_x, &camp_y);
+      if (map == NULL)
+        return;
+
+      if (next_x < 0) {
+        hero_x = width - 1;
+        hero_y = (hero_y < height) ? hero_y : height / 2;
+      } else if (next_x >= old_w) {
+        hero_x = 0;
+        hero_y = (hero_y < height) ? hero_y : height / 2;
+      } else if (next_y < 0) {
+        hero_y = height - 1;
+        hero_x = (hero_x < width) ? hero_x : width / 2;
+      } else if (next_y >= old_h) {
+        hero_y = 0;
+        hero_x = (hero_x < width) ? hero_x : width / 2;
+      }
+
+      if (map[hero_y][hero_x] != '^') {
+        map[hero_y][hero_x] = '.';
+      }
+
+      scream_steps = 0;
+      continue;
+    }
+
+    // Проверка препятствий
+    if (map[next_y][next_x] == 'T' || map[next_y][next_x] == 'R') {continue;}
+
+    hero_x = next_x;
+    hero_y = next_y;
+
+    if (scream_steps > 0) {scream_steps--;}
+  }
 }
