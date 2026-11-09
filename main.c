@@ -41,9 +41,9 @@ void check_crafting_recipes(void);
 int random_free_cell(char **map, int width, int height, int *cell_x,int *cell_y);
 char **create_map(int *width, int *height, int *camp_x, int *camp_y);
 void free_map(char **map, int height);
+void print_map(char **map, int width, int height, int hero_x, int hero_y,int scream_x, int scream_y, int radius, int steps_left);
 
-int main()
-{
+int main() {
   srand(time(NULL));
   load_items(item_names);
   int taskNum;
@@ -167,7 +167,27 @@ int main()
       break;
 
     case 10: // Путешествие
-    
+    {
+      int w, h;
+      int hero_x, hero_y;
+      int camp_x, camp_y;
+      int scream_x = 0, scream_y = 0; // центр крика
+      int radius = 0;                 // радиус крика
+      int steps_left = 0;             // сколько ходов осталось
+
+      char **map = create_map(&w, &h, &camp_x, &camp_y);
+      if (map == NULL)
+      {
+        printf("Не хватило памяти для карты\n");
+        break;
+      }
+
+      // Герой на свободной клетке
+      random_free_cell(map, w, h, &hero_x, &hero_y);
+      print_map(map, w, h, hero_x, hero_y, scream_x, scream_y, radius, steps_left);
+      free_map(map, h);
+      break;
+    }
 
     case 0: // выход
 
@@ -500,6 +520,26 @@ char **create_map(int *width, int *height, int *camp_x, int *camp_y) {
   map[*camp_y][*camp_x] = '^';
 
   return map;
+}
+
+// Вывод карты с туманом
+void print_map(char **map, int width, int height, int hero_x, int hero_y,int scream_x, int scream_y, int radius, int steps_left)
+{
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int dx = x - scream_x;
+      int dy = y - scream_y;
+
+      if (x == hero_x && y == hero_y) {
+        putchar('@');
+      } else if (steps_left > 0 && dx * dx + dy * dy <= radius * radius) {
+        putchar(map[y][x]);
+      } else {
+        putchar('?');
+      }
+    }
+    putchar('\n');
+  }
 }
 
 // очистка карты
