@@ -40,6 +40,7 @@ void save_to_diary(void);
 void check_crafting_recipes(void);
 char **create_map(int *width, int *height);
 void place_hero(char **map, int width, int height, int *hero_x, int *hero_y);
+void free_map(char **map, int height);
 
 int main()
 {
@@ -165,9 +166,27 @@ int main()
       check_crafting_recipes();
       break;
 
-    case 10:// Путешествие
-      
+    case 10: // Путешествие
+    {
+      int w, h;
+      int hero_x, hero_y;
+
+      char **map = create_map(&w, &h);
+      if (map == NULL)
+      {
+        printf("Ошибка: нет карты\n");
+        break;
+      }
+
+      place_hero(map, w, h, &hero_x, &hero_y);
+
+      printf("Карта %dx%d, герой в (%d, %d)\n", w, h, hero_x, hero_y);
+      for (int y = 0; y < h; y++)
+      {printf("%s\n", map[y]);}
+
+      free_map(map, h);
       break;
+    }
 
     case 0: // выход
 
@@ -176,7 +195,7 @@ int main()
 
     default:
 
-      printf("Ты че? только 1-9\n");
+      printf("Ты че? только 1-10\n");
       break;
 
     }
