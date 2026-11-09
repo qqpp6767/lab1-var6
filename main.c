@@ -38,8 +38,8 @@ void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void find_by_name(const char *search_name);
 void save_to_diary(void);
 void check_crafting_recipes(void);
-char **create_map(int *width, int *height);
-void place_hero(char **map, int width, int height, int *hero_x, int *hero_y);
+int random_free_cell(char **map, int width, int height, int *cell_x,int *cell_y);
+char **create_map(int *width, int *height, int *camp_x, int *camp_y);
 void free_map(char **map, int height);
 
 int main()
@@ -167,26 +167,7 @@ int main()
       break;
 
     case 10: // Путешествие
-    {
-      int w, h;
-      int hero_x, hero_y;
-
-      char **map = create_map(&w, &h);
-      if (map == NULL)
-      {
-        printf("Ошибка: нет карты\n");
-        break;
-      }
-
-      place_hero(map, w, h, &hero_x, &hero_y);
-
-      printf("Карта %dx%d, герой в (%d, %d)\n", w, h, hero_x, hero_y);
-      for (int y = 0; y < h; y++)
-      {printf("%s\n", map[y]);}
-
-      free_map(map, h);
-      break;
-    }
+    
 
     case 0: // выход
 
@@ -443,40 +424,81 @@ void check_crafting_recipes(void)
   printf("сохранено в output.txt\n\n");
 }
 
-// создание карты
-char **create_map(int *width, int *height)
+// Свободная клетка. Возвращает 1 если есть, 0 если нет
+int random_free_cell(char **map, int width, int height, int *cell_x,int *cell_y)
 {
-  *width = rand() % 26 + 5;
-  *height = rand() % 26 + 5;
-  int chance = rand() % 16 + 15;
+  int free_cells = 0;
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      if (map[y][x] == '.')
+        free_cells++;
+    }
+  }
+  if (free_cells == 0)
+    return 0;
 
-  // Массив указателей на строки
+  int target = rand() % free_cells;
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      if (map[y][x] == '.') {
+        if (target == 0)
+        {
+          *cell_x = x;
+          *cell_y = y;
+          return 1;
+        }
+        target--;
+      }
+    }
+  }
+  return 0;
+}
+
+// Создание карты (без стен) с лагерем
+char **create_map(int *width, int *height, int *camp_x, int *camp_y) {
+  *width = rand() % 26 + 5;      // 5 - 30
+  *height = rand() % 26 + 5;     // 5 - 30
+  int chance = rand() % 16 + 15; // 15 - 30 %
+
   char **map = malloc(*height * sizeof(char *));
   if (map == NULL)
     return NULL;
 
+  int free_cells = 0;
   for (int y = 0; y < *height; y++) {
     map[y] = malloc(*width + 1); // +1 для '\0'
-    if (map[y] == NULL)
-    {
-      // Если не хватило памяти
+    if (map[y] == NULL) {
       for (int i = 0; i < y; i++)
-      {free(map[i]);}
+        free(map[i]);
       free(map);
       return NULL;
     }
 
-    for (int x = 0; x < *width; x++)
-    {
-      if (x == 0 || x == *width - 1 || y == 0 || y == *height - 1) // ограничение карты
-      {map[y][x] = '#';}
-      else if (rand() % 100 < chance)
-      {map[y][x] = (rand() % 2 == 0) ? 'T' : 'R';}
-      else
-      {map[y][x] = '.';}
+    for (int x = 0; x < *width; x++) {
+      if (rand() % 100 < chance) {
+        map[y][x] = (rand() % 2 == 0) ? 'T' : 'R';
+      } else {
+        map[y][x] = '.';
+        free_cells++;
+      }
     }
     map[y][*width] = '\0';
   }
+
+  // Нужно минимум 2 свободные клетки: 1 под лагерь, 1 под героя
+  for (int y = 0; y < *height && free_cells < 2; y++) {
+    for (int x = 0; x < *width && free_cells < 2; x++) {
+      if (map[y][x] != '.') {
+        map[y][x] = '.';
+        free_cells++;
+      }
+    }
+  }
+
+  // Лагерь
+  random_free_cell(map, *width, *height, camp_x, camp_y);
+  map[*camp_y][*camp_x] = '^';
+
   return map;
 }
 
@@ -487,44 +509,4 @@ void free_map(char **map, int height)
   for (int y = 0; y < height; y++)
   {free(map[y]);}
   free(map);
-}
-
-// Создание героя
-void place_hero(char **map, int width, int height, int *hero_x, int *hero_y)
-{
-  int free_cells = 0;
-  for (int y = 1; y < height - 1; y++)
-  {
-    for (int x = 1; x < width - 1; x++)
-    {
-      if (map[y][x] == '.') {free_cells++;}
-    }
-  }
-
-  // Если нет места
-  if (free_cells == 0)
-  {
-    map[1][1] = '.';
-    free_cells = 1;
-  }
-
-  // Позиция героя
-  int target = rand() % free_cells;
-  for (int y = 1; y < height - 1; y++)
-  {
-    for (int x = 1; x < width - 1; x++)
-    {
-      if (map[y][x] == '.')
-      {
-        if (target == 0)
-        {
-          map[y][x] = '@';
-          *hero_x = x;
-          *hero_y = y;
-          return;
-        }
-        target--;
-      }
-    }
-  }
 }
