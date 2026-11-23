@@ -1,4 +1,6 @@
+.vscode/
 main
-secrets.txt
-output.txt
-diary.txt
+build/
+data/secrets.txt
+data/output.txt
+data/diary.txt

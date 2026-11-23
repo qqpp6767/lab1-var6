@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <time.h>
 
+#ifndef DATA_DIR
+#define DATA_DIR "data/"
+#endif
+#define DATA_FILE(name) (DATA_DIR name)
+
 #define MAX_ITEMS 10
 #define MAX_ITEM_NAME_LEN 32
 #define MAX_NAME_LEN 32
@@ -204,7 +209,7 @@ int input(int *var) {
 // Загрузка предметов
 void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN])
 {
-  FILE *file = fopen("items.txt", "r");
+  FILE *file = fopen(DATA_FILE("items.txt"), "r");
   if (file == NULL)
   {
     printf("items.txt не найден\n");
@@ -300,7 +305,7 @@ void find_by_name(const char *search_name)
 // Запись состояния в дневник
 void save_to_diary(void)
 {
-  FILE *file = fopen("diary.txt", "a");
+  FILE *file = fopen(DATA_FILE("diary.txt"), "a");
   if (file == NULL)
   {
     printf("Не удалось открыть файл diary.txt\n");
@@ -322,14 +327,14 @@ void save_to_diary(void)
 // Проверка рецептов крафта
 void check_crafting_recipes(void)
 {
-  FILE *f_in = fopen("input.txt", "r");
+  FILE *f_in = fopen(DATA_FILE("input.txt"), "r");
   if (f_in == NULL)
   {
     printf("Файл input.txt не найден\n");
     return;
   }
 
-  FILE *f_out = fopen("output.txt", "w");
+  FILE *f_out = fopen(DATA_FILE("output.txt"), "w");
   if (f_out == NULL)
   {
     printf("Не удалось создать output.txt\n");
