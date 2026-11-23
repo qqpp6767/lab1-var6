@@ -49,7 +49,7 @@ void free_map(char **map, int height);
 void print_map(char **map, int width, int height, int hero_x, int hero_y,int scream_x, int scream_y, int radius, int steps_left);
 void travel(void);
 
-int main() {
+int main(void) {
   srand(time(NULL));
   load_items(item_names);
   int taskNum;
