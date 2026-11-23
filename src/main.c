@@ -17,7 +17,8 @@ enum MenuOption {
   MENU_FIND_ITEM,
   MENU_DIARY,
   MENU_ADVENTURE,
-  MENU_CRAFT
+  MENU_CRAFT,
+  MENU_SELL_MAPS
 };
 
 static void print_menu(void) {
@@ -34,7 +35,8 @@ static void print_menu(void) {
          "9 - Записать состояние в дневник фермера\n"
          "10 - Отправиться в приключение\n"
          "11 - Расшифровать старые записи\n"
-         "Введи № действия (0-11): ");
+         "12 - Продать зарисованные карты\n"
+         "Введи № действия (0-12): ");
 }
 
 static void handle_menu_choice(int choice, Player **player,
@@ -73,11 +75,14 @@ static void handle_menu_choice(int choice, Player **player,
   case MENU_CRAFT:
     player_check_recipes(*player, item_names);
     break;
+  case MENU_SELL_MAPS:
+    sell_sketched_maps(*player);
+    break;
   case MENU_EXIT:
     printf("Ну пока!\n");
     break;
   default:
-    printf("Неверный пункт меню (0-11)\n");
+    printf("Неверный пункт меню (0-12)\n");
     break;
   }
 }

@@ -6,6 +6,7 @@
 #define START_HP 100
 #define START_STAMINA 50
 #define START_GOLD 0
+#define MAP_SELL_PRICE 25
 
 typedef struct {
   char name[MAX_NAME_LEN + 1];
@@ -14,6 +15,7 @@ typedef struct {
   int stamina;
   int max_stamina;
   int gold;
+  int sketched_maps;
   int x;
   int y;
   int day;
@@ -28,10 +30,11 @@ void recreate_player(Player **player);
 void free_player(Player *player);
 int check_player_exists(const Player *player);
 
-// Карточка и режим дня
+// Карточка, режим дня и продажа карт
 void print_player_card(const Player *player,
                        char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void manage_time_menu(Player *player);
+void sell_sketched_maps(Player *player);
 
 // Инвентарь
 void check_inventory(const Player *player,

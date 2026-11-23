@@ -5,11 +5,9 @@
 
 #define MAP_MIN_SIZE 5
 #define MAP_SIZE_RANGE 26
-#define OBSTACLE_MIN_CHANCE 15
-#define OBSTACLE_CHANCE_RANGE 16
 
-#define STEP_STAMINA_COST 1
 #define FLOOR_STAMINA_COST 5
+#define MAP_SKETCH_STAMINA_COST 5
 #define FLOOR_TIME_COST 1
 #define BASE_GOLD_MULTIPLIER 10
 
@@ -29,14 +27,32 @@ enum Direction {
   DIR_LEFT,
   DIR_RIGHT,
   DIR_SCREAM,
+  DIR_SKETCH,
   DIR_QUIT
 };
+
+enum Biome {
+  BIOME_LIGHT_FOREST = 0, // Редколесье
+  BIOME_SWAMP,            // Топь
+  BIOME_STONE_RUINS,      // Каменные руины
+  BIOME_CRYSTAL_CAVE,     // Кристальная пещера
+  BIOME_COUNT
+};
+
+typedef struct {
+  enum Biome biome;
+  int obstacle_chance;
+  int gold_multiplier;
+  int step_stamina_cost;
+  int is_mapped;
+} MapInfo;
 
 typedef struct {
   char **grid;
   int width;
   int height;
   int floor;
+  MapInfo info;
   int camp_x;
   int camp_y;
   int scream_x;

@@ -17,6 +17,7 @@ Player *create_player(void) {
   player->stamina = START_STAMINA;
   player->max_stamina = START_STAMINA;
   player->gold = START_GOLD;
+  player->sketched_maps = 0;
   player->x = 0;
   player->y = 0;
   player->day = START_DAY;
@@ -82,11 +83,12 @@ void print_player_card(const Player *player,
   }
 
   printf("\n══════════ КАРТОЧКА ПЕРСОНАЖА ══════════\n");
-  printf("Имя:          %s\n", player->name);
-  printf("Здоровье:     %d / %d\n", player->hp, player->max_hp);
-  printf("Выносливость: %d / %d\n", player->stamina, player->max_stamina);
-  printf("Золото:       %d\n", player->gold);
-  printf("Дата и время: День %d, %02d:00\n", player->day, player->hour);
+  printf("Имя:             %s\n", player->name);
+  printf("Здоровье:        %d / %d\n", player->hp, player->max_hp);
+  printf("Выносливость:    %d / %d\n", player->stamina, player->max_stamina);
+  printf("Золото:          %d\n", player->gold);
+  printf("Зарисовано карт: %d\n", player->sketched_maps);
+  printf("Дата и время:    День %d, %02d:00\n", player->day, player->hour);
   printf("────────────────────────────────────────\n");
   printf("Инвентарь:\n");
   check_inventory(player, item_names);
@@ -172,6 +174,27 @@ void manage_time_menu(Player *player) {
       break;
     }
   } while (choice != TIME_BACK);
+}
+
+// Продажа зарисованных карт в главном меню
+void sell_sketched_maps(Player *player) {
+  if (!check_player_exists(player)) {
+    return;
+  }
+
+  if (player->sketched_maps <= 0) {
+    printf("У вас нет зарисованных карт для продажи.\n");
+    return;
+  }
+
+  int count = player->sketched_maps;
+  int bonus_gold = count * MAP_SELL_PRICE;
+  player->gold += bonus_gold;
+  player->sketched_maps = 0;
+
+  printf("Вы продали зарисованные карты (%d шт.) и получили %d бонусного "
+         "золота! Всего золота: %d\n",
+         count, bonus_gold, player->gold);
 }
 
 // Вывод содержимого рюкзака
