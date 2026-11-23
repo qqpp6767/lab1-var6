@@ -3,29 +3,42 @@
 
 #include "utils.h"
 
+#define START_HP 100
+#define START_STAMINA 50
+#define START_GOLD 0
+
 typedef struct {
   char name[MAX_NAME_LEN + 1];
+  int hp;
+  int max_hp;
+  int stamina;
+  int max_stamina;
+  int gold;
+  int x;
+  int y;
   int day;
   int hour;
   int inventory[MAX_ITEMS];
   int inventory_size;
 } Player;
 
-// Создание и удаление структуры игрока
+// Жизненный цикл персонажа
 Player *create_player(void);
+void recreate_player(Player **player);
 void free_player(Player *player);
+int check_player_exists(const Player *player);
 
-// Статы и время
-void show_player_time(const Player *player);
-void player_work(Player *player);
+// Карточка и режим дня
+void print_player_card(const Player *player,
+                       char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+void manage_time_menu(Player *player);
 
 // Инвентарь
 void check_inventory(const Player *player,
                      char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void put_item_in_slot(Player *player,
                       char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
-void drop_item(Player *player,
-               char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+void drop_item(Player *player, char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void check_weights(const Player *player,
                    char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void find_item_by_name(const Player *player,

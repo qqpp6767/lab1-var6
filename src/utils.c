@@ -32,7 +32,7 @@ void read_string(char *buffer, int size) {
 int input_int(int *var) {
   int ch;
   if (scanf("%d", var) != 1) {
-    printf("Нужно число\n");
+    printf("Нужно ввести число!\n");
     while ((ch = getchar()) != '\n' && ch != EOF) {
     }
     *var = -1;
@@ -56,12 +56,23 @@ int input_char(char *var) {
   return 1;
 }
 
+// Сколько часов осталось до ближайших 02:00 ночи
+int get_hours_until_night(int current_hour) {
+  if (current_hour == NIGHT_HOUR) {
+    return 0;
+  }
+  if (current_hour > NIGHT_HOUR) {
+    return (HOURS_IN_DAY - current_hour) + NIGHT_HOUR;
+  }
+  return NIGHT_HOUR - current_hour;
+}
+
 // Перевод времени вперед
 void advance_time(int *day, int *hour, int hours_to_add) {
   *hour += hours_to_add;
-  while (*hour >= 24) {
+  while (*hour >= HOURS_IN_DAY) {
     (*day)++;
-    *hour -= 24;
+    *hour -= HOURS_IN_DAY;
   }
 }
 
@@ -99,7 +110,8 @@ void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
 }
 
 // Сохранение текущего состояния в дневник
-void save_to_diary(const char *player_name, int day, int hour,
+void save_to_diary(const char *player_name, int day, int hour, int hp,
+                   int max_hp, int stamina, int max_stamina, int gold,
                    const int *inventory, int inventory_size,
                    char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   FILE *file = fopen(DATA_FILE("diary.txt"), "a");
@@ -111,6 +123,8 @@ void save_to_diary(const char *player_name, int day, int hour,
   fprintf(file, "────────── Запись в дневнике ──────────\n");
   fprintf(file, "Фермер: %s\n", player_name);
   fprintf(file, "Время: День %d, %02d:00\n", day, hour);
+  fprintf(file, "HP: %d/%d | Выносливость: %d/%d | Золото: %d\n", hp, max_hp,
+          stamina, max_stamina, gold);
   fprintf(file, "Содержимое рюкзака:\n");
   for (int i = 0; i < inventory_size; i++) {
     fprintf(file, "  Слот %d: [%d] %s\n", i, inventory[i],
@@ -123,9 +137,8 @@ void save_to_diary(const char *player_name, int day, int hour,
 }
 
 // Проверка рецептов крафта по файлам input.txt и output.txt
-void check_crafting_recipes(
-    const int *inventory, int inventory_size,
-    char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+void check_crafting_recipes(const int *inventory, int inventory_size,
+                            char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   FILE *f_in = fopen(DATA_FILE("input.txt"), "r");
   if (f_in == NULL) {
     printf("Файл input.txt не найден\n");
