@@ -1,5 +1,6 @@
 #include "player.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,9 +31,9 @@ void free_player(Player *player) {
   if (player == NULL) {
     return;
   }
-  void *addr = (void *)player;
+  uintptr_t addr = (uintptr_t)player;
   free(player);
-  printf("Память структуры по адресу %p освобождена\n", addr);
+  printf("Память структуры по адресу %p освобождена\n", (void *)addr);
 }
 
 // Показать время игрока
@@ -58,7 +59,7 @@ void player_work(Player *player) {
 
 // Вывод содержимого рюкзака
 void check_inventory(const Player *player,
-                     const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                     char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   for (int i = 0; i < player->inventory_size; i++) {
     int id = player->inventory[i];
     printf("Слот %d: [%d] (%s)\n", i, id, item_names[id]);
@@ -67,7 +68,7 @@ void check_inventory(const Player *player,
 
 // Положить предмет в выбранный слот
 void put_item_in_slot(Player *player,
-                      const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                      char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   int slot, item_id;
 
   printf("Введи номер слота (0-9): ");
@@ -99,7 +100,7 @@ void put_item_in_slot(Player *player,
 
 // Выбросить предмет из слота
 void drop_item(Player *player,
-               const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+               char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   int slot;
   printf("Введи Слот (0-9): ");
   if (!input_int(&slot)) {
@@ -117,7 +118,7 @@ void drop_item(Player *player,
 
 // Поиск предметов с ID больше заданного
 void check_weights(const Player *player,
-                   const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                   char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   int item_id;
   printf("Введи ID предмета: ");
   if (!input_int(&item_id)) {
@@ -141,7 +142,7 @@ void check_weights(const Player *player,
 
 // Поиск предмета в рюкзаке по названию
 void find_item_by_name(const Player *player,
-                       const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                       char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   char search_name[MAX_ITEM_NAME_LEN];
   printf("Введи название предмета для поиска: ");
   read_string(search_name, sizeof(search_name));
@@ -175,13 +176,13 @@ void find_item_by_name(const Player *player,
 
 // Запись состояния игрока в дневник
 void player_save_diary(const Player *player,
-                       const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                       char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   save_to_diary(player->name, player->day, player->hour, player->inventory,
                 player->inventory_size, item_names);
 }
 
 // Проверка доступных рецептов крафта
 void player_check_recipes(const Player *player,
-                          const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                          char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   check_crafting_recipes(player->inventory, player->inventory_size, item_names);
 }

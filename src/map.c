@@ -1,6 +1,7 @@
 #include "map.h"
 #include "utils.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 // Поиск случайной свободной клетки '.'
@@ -106,9 +107,9 @@ void free_map(Map *map) {
     free(map->grid);
   }
 
-  void *addr = (void *)map;
+  uintptr_t addr = (uintptr_t)map;
   free(map);
-  printf("Память структуры по адресу %p освобождена\n", addr);
+  printf("Память структуры по адресу %p освобождена\n", (void *)addr);
 }
 
 // Отрисовка карты с туманом войны

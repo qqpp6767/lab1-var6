@@ -101,7 +101,7 @@ void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
 // Сохранение текущего состояния в дневник
 void save_to_diary(const char *player_name, int day, int hour,
                    const int *inventory, int inventory_size,
-                   const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+                   char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   FILE *file = fopen(DATA_FILE("diary.txt"), "a");
   if (file == NULL) {
     printf("Не удалось открыть файл diary.txt\n");
@@ -125,7 +125,7 @@ void save_to_diary(const char *player_name, int day, int hour,
 // Проверка рецептов крафта по файлам input.txt и output.txt
 void check_crafting_recipes(
     const int *inventory, int inventory_size,
-    const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
+    char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]) {
   FILE *f_in = fopen(DATA_FILE("input.txt"), "r");
   if (f_in == NULL) {
     printf("Файл input.txt не найден\n");

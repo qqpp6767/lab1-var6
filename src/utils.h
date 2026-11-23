@@ -35,9 +35,9 @@ void print_time(int day, int hour);
 void load_items(char names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void save_to_diary(const char *player_name, int day, int hour,
                    const int *inventory, int inventory_size,
-                   const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                   char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void check_crafting_recipes(
     const int *inventory, int inventory_size,
-    const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+    char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 
 #endif

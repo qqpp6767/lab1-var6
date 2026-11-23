@@ -21,20 +21,20 @@ void player_work(Player *player);
 
 // Инвентарь
 void check_inventory(const Player *player,
-                     const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                     char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void put_item_in_slot(Player *player,
-                      const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                      char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void drop_item(Player *player,
-               const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+               char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void check_weights(const Player *player,
-                   const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                   char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void find_item_by_name(const Player *player,
-                       const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                       char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 
 // Файловые операции игрока
 void player_save_diary(const Player *player,
-                       const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                       char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 void player_check_recipes(const Player *player,
-                          const char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
+                          char item_names[MAX_ITEMS][MAX_ITEM_NAME_LEN]);
 
 #endif
